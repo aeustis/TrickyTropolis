@@ -1,12 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Code\LevelSelectScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Code\UIManager.cs">
     <Files>
-      <File FileName="Assets\Code\UIManager.cs" Line="238" Column="20" />
-      <File FileName="Assets\Code\ButtonFlash.cs" Line="5" Column="42" />
-      <File FileName="Assets\Code\MessageBoxScript.cs" Line="1" Column="1" />
-      <File FileName="Assets\Code\LevelSelectScript.cs" Line="109" Column="32" />
-      <File FileName="Assets\Code\LevelGroup.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\LevelGroup.cs" Line="15" Column="17" />
+      <File FileName="Assets\Code\UIManager.cs" Line="40" Column="5" />
+      <File FileName="Assets\Code\CardUI.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\LevelSelectScript.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\MeterScript.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\MessageBoxScript.cs" Line="17" Column="3" />
+      <File FileName="Assets\Code\BoardManager.cs" Line="46" Column="33" />
+      <File FileName="Assets\Code\GameCard.cs" Line="182" Column="5" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

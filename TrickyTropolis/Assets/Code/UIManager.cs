@@ -33,12 +33,14 @@ public class UIManager : MonoBehaviour, IGametoUI {
     public Level currentLevel;
 	void Start () {
 		slotsPlayable = new bool[buildSlots.Length];
+		//PlayerPrefs.DeleteAll (); //Delete me!
 
         if (chaosMode) {
 			startNextLevel();
 		} 
 	}
 
+	int constructionTotal=0;
 	CardUI newHandCard( string code, Vector3 startPos ) {
 		GameObject obj = Instantiate(handCardObject, startPos, Quaternion.identity) as GameObject;
 		obj.GetComponent<SpriteRenderer>().sprite = 
@@ -48,7 +50,7 @@ public class UIManager : MonoBehaviour, IGametoUI {
         newCard.gameCard = cardData;
 		if (cardData is BuildingCard) {
 			BuildingCard b = cardData as BuildingCard;
-			obj.GetComponentInChildren<Text> ().text = b.energyCost + "/" + b.startingEnergy;
+			obj.GetComponentInChildren<Text> ().text = setEnergyText(b,constructionTotal);
 		} else {
 			obj.GetComponentInChildren<Text>().text = "";
 		}
@@ -57,6 +59,18 @@ public class UIManager : MonoBehaviour, IGametoUI {
 		newCard.manager = this;
 		handCards.Add(newCard);
 		return newCard;
+	}
+
+	public string setEnergyText( BuildingCard card, int construction ) {
+		int cost = card.energyCost - construction;
+		if (cost < 0) cost = 0;
+		string text;
+		if (cost < card.energyCost) 
+			text = "<color=#00C800FF>" + cost + "</color>";
+		else
+			text = "" + cost;
+		text += "/" + card.startingEnergy;
+		return text;
 	}
 
 	HandGenerator handGen = new HandGenerator ();
@@ -110,6 +124,7 @@ public class UIManager : MonoBehaviour, IGametoUI {
 		handCodes = currentLevel.hand.Split ();
 
 		//Create the hand cards
+		constructionTotal = 0;
 		handCards = new List<CardUI> ();
 		foreach (string code in handCodes) {
 			newHandCard (code, handSpawnPos.position);
@@ -161,8 +176,12 @@ public class UIManager : MonoBehaviour, IGametoUI {
 				currentLevel.bonusGoal != -1 && score >= currentLevel.bonusGoal && levelBest < currentLevel.bonusGoal;
 			bool flagEarned = score >= currentLevel.energyGoal && levelBest < currentLevel.energyGoal;
 
-			if( trophyEarned ) --levelSelect.trophiesMissed;
-			if( flagEarned ) --levelSelect.flagsMissed;
+			if( trophyEarned ) {
+				--levelSelect.trophiesMissed;
+			}
+			if( flagEarned ) {
+				--levelSelect.flagsMissed;
+			}
 
 			//Have we completed the group?
 			if( levelSelect.nextLockedGroup != -1 ) {
@@ -171,13 +190,13 @@ public class UIManager : MonoBehaviour, IGametoUI {
 					if( levelSelect.trophiesMissed <= lockedGroup.trophiesSkippable ) {
 						msgManager.messageBox( "Rank Up!!", 
 						"You did it!  You have unlocked the next group of levels and earned the rank of " +
-						lockedGroup.name + "!" );
+						lockedGroup.name + "!");
 					} 
 					else {
 						msgManager.messageBox( "Group Complete", 
 						"You finished all the levels in this group!  However, you will need to find more " +
 						"hidden trophies to proceed to the next rank.  Return to the Level Select screen " +
-						"and start hunting!" );
+						"and start hunting!");
 					}
 					backButton.beginFlash();
 					return;
@@ -187,14 +206,14 @@ public class UIManager : MonoBehaviour, IGametoUI {
 				//We earned a trophy 
 				msgManager.messageBox( "Trophy Earned!",
 					"You found a bonus trophy!  Amazing! Collect these to unlock more puzzles " +
-					"and game modes." );
+					"and game modes.");
 				meterScript.flagImage.SetActive(true);
 				meterScript.trophyImage.SetActive(true);
 				nextButton.beginFlash();
 			} else if( flagEarned ) {
 				//We earned a flag
 				msgManager.messageBox( "Level Complete!", 
-					"Good job!  Press the \"next level\" button to continue." );
+					"Good job!  Press the \"next level\" button to continue.");
 				meterScript.flagImage.SetActive(true);
 				nextButton.beginFlash();
 			}
@@ -283,25 +302,12 @@ public class UIManager : MonoBehaviour, IGametoUI {
 		if (theGame == null) return;
 
 		//Run actions until we have to wait for animations to finish
-		bool actionsDone = false;
 		while (theGame.actionsInQueue() && animsRunning == 0) {
-			actionsDone = true;
 			theGame.runNextAction ();
-			//Update the meter
-			meterScript.setCurrent (theGame.getEnergyTotal ());
+
+			updatePostAction();
 		}
 
-		if( actionsDone && !theGame.actionsInQueue() ) {
-			//We just emptied the action queue, so re-enable drag and drop and save the level score
-			saveLevelScore();
-			for (int i=0; i < buildSlots.Length; ++i)
-				setSlotColor (i, slotActiveColor);
-		
-			if (selectedCard != null) {
-				onDragStart ();
-				selectedSlot = -1;
-			}
-		} 
 
 		//Drag our selected card around, under the right conditions
 		if (selectedCard != null && !selectedCard.zoomed && selectedCard.dragEnabled) {
@@ -388,16 +394,6 @@ public class UIManager : MonoBehaviour, IGametoUI {
 		//Attempt to play the card 
 		if ( selectedSlot != -1 && slotsPlayable [selectedSlot]
 		    && theGame.playCard( handCards.IndexOf(selectedCard), selectedSlot ) ) {
-			//Update meter
-			meterScript.setCurrent( theGame.getEnergyTotal() );
-			if( !theGame.actionsInQueue() ) saveLevelScore();
-
-			//Set slots to inactive state (can't play additional cards yet)
-			//(unless the action queue is already empty)
-			if( theGame.actionsInQueue() )
-				for( int i = 0; i < buildSlots.Length; ++i ) 
-					setSlotColor( i, slotInactiveColor );
-
 			//Remove the card from our hand
 			handCards.Remove(selectedCard);
 			adjustColumn(selectedCard.handColumn, true);
@@ -405,13 +401,51 @@ public class UIManager : MonoBehaviour, IGametoUI {
 			//Deselect and destroy the card 
 			//TODO: Add a card play animation (turns white or something?)
 			Destroy( selectedCard.gameObject );
-            deselectSlot();
-            selectedCard = null;
+			deselectSlot();
+			selectedCard = null;
+			
+			//Set slots to inactive state (can't play additional cards yet)
+			//(unless the action queue is already empty)
+			if( theGame.actionsInQueue() )
+				for( int i = 0; i < buildSlots.Length; ++i ) 
+					setSlotColor( i, slotInactiveColor );
+
+			//Update stuff like meter, construction
+			updatePostAction();
+
+
 		} else {
             selectedCard.flyTo( selectedCard.snapPos, CARD_FLY_SPEED, CARD_FLY_DAMP_DIST );
             deselectSlot();
             selectedCard = null;
 		}
+	}
+
+	void updatePostAction() {
+		//Update meter
+		meterScript.setCurrent( theGame.getEnergyTotal() );
+		
+		int c = theGame.getAttributeTotal (BoardManager.constructionAttr);
+		if (c != constructionTotal) {
+			constructionTotal = c;
+			foreach( CardUI card in handCards ) {
+				if( card.gameCard is BuildingCard )
+					card.GetComponentInChildren<Text>().text = 
+						setEnergyText( card.gameCard as BuildingCard, c );
+			}
+		}
+
+		if( !theGame.actionsInQueue() ) {
+			//We just emptied the action queue, so re-enable drag and drop and save the level score
+			saveLevelScore();
+			for (int i=0; i < buildSlots.Length; ++i)
+				setSlotColor (i, slotActiveColor);
+			
+			if (selectedCard != null) {
+				onDragStart ();
+				selectedSlot = -1;
+			}
+		} 
 	}
 
 	void updateUnitEnergy( int slotIndex ) {

@@ -14,12 +14,7 @@ public class CardUI : MonoBehaviour {
 
 	internal int handColumn;
     internal GameCard gameCard;
-
-	// Use this for initialization
-	void Start () {
-
-	}
-
+	
 	void OnMouseDown() {
 		StopAllCoroutines ();
 

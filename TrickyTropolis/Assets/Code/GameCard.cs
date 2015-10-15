@@ -120,7 +120,7 @@ public class BuildingCard : GameCard, IUnitInfo {
 	databank = new BuildingCard ("Databank", "d", 0, 1, null, 
 		delegate( IGameplay g, int slotIndex ) {
 			g.modifyEnergy (slotIndex, 1);
-		}).addAttribute( "UPGRADE: +1 energy", 1 ),
+		}).addAttribute( "Upgrade: +1", 1 ),
 	
 	industrialZone = new BuildingCard( "Industrial Zone", "iz", 0, 0, delegate( IGameplay g, int slotIndex ) {
 		int nextAvail;
@@ -174,13 +174,13 @@ public class BuildingCard : GameCard, IUnitInfo {
 	    delegate(IGameplay g, int slotIndex ) {
 			g.addAttribute( slotIndex, BoardManager.supplyAttr, 1 );
 		})
-		.addAttribute("UPGRADE: Supply", 1),
+		.addAttribute("Upgrade: Supply", 1),
 	
 	scaffolding = new BuildingCard("Scaffolding", "sf", 2, 2, null, 
 		delegate(IGameplay g, int slotIndex ) {
 			g.addAttribute( slotIndex, BoardManager.buildupAttr, 1 );
 		})
-		.addAttribute("UPGRADE: Buildup", 1),
+		.addAttribute("Upgrade: Buildup", 1),
 	
 	windTurbine = new BuildingCard( "Wind Turbine", "wt", 3, 3 )
 		.addAttribute( BoardManager.supplyAttr, 1 ),

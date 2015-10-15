@@ -40,7 +40,7 @@ public class BoardManager : IGameplay, IUItoGame {
 		supplyAttr = "Supply",
 		buildupAttr = "Buildup",
 		constructionAttr = "Construction",
-		energyMultiplierAttr = "Energy Multiplier",
+		energyMultiplierAttr = "Multiplier",
 		recycleAttr = "Recycle";
 	
 	public const int MAX_UNITS = 9;

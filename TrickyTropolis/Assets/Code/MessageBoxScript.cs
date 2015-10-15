@@ -13,12 +13,11 @@ public class MessageBoxScript : MonoBehaviour {
 	int messageIndex;
 
 	public void messageBox( string title, string text ) {
-		messageBox (title, new string[] {text});
+		messageBox (title, new string[] {text} );
 	}
 
 	public void messageBox( string title, string[] text ) {
 		if (!isOpen) open ();
-
 		messages = text;
 		messageIndex = -1;
 		titleText.text = title;

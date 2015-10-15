@@ -60,7 +60,9 @@ public class LevelSelectScript : MonoBehaviour {
 				b.gameObject.SetActive(true);
 				b.GetComponent<Button>().interactable = false;
 				b.flagText.text = flagsMissed + " left";
-				b.trophyText.text = (trophiesMissed - groups[i].trophiesSkippable) + " left";
+				int trophiesLeft = trophiesMissed - groups[i].trophiesSkippable;
+				if( trophiesLeft < 0 ) trophiesLeft = 0;
+				b.trophyText.text = trophiesLeft + " left";
 
 				//Make any remaining buttons invisible, then be done
 				while( ++i < buttons.Length ) {
