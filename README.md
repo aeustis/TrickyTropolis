@@ -1,2 +1,2 @@
 # TrickyTropolis
-A card-based puzzle game!  This cerebral game will challenge you to find creative ways to optimize the cards at your disposal.
+This is strategy card game, similar in certain ways to Magic: the Gathering or Hearthstone, but with a completely different emphasis: the game consists of single player puzzles rather than two player duels.  This cerebral game will challenge you to find creative ways to optimize the cards at your disposal.  Using a combination of logic, pattern recognition, and trial and error, you eventually prevail by reaching the required goal for the puzzle.
